@@ -1,0 +1,2 @@
+class Spatula < ApplicationRecord
+end
