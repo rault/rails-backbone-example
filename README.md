@@ -67,16 +67,19 @@ Let's say you've taken a contract to build an online order entry system for a co
 Rails
 ---
 
-First we need a new rails application:
+First create a new rails application:
+
 > cd ~/whatever/directory/iwant/mynew/rails/app/tobein
 
 > rails new spatula_emporium
 
 > cd spatula_emporium
 
-[commit](d9dd59217ff6fe71f0b8768ee7bcafadae2acdc7)
+[commit](https://github.com/rault/rails-backbone-example/commit/d9dd59217ff6fe71f0b8768ee7bcafadae2acdc7)
 
-Next we'll create our models. We'll just be using the default sqlite database but you can switch to something else if you want to. The models we'll need are:
+##### Models
+
+This example application is using the default sqlite database but you can switch to something else if you want to. The models are:
 
 * "Spatula" with attributes for color and price
 * "Customer" with attributes for name and zip code
@@ -84,7 +87,7 @@ Next we'll create our models. We'll just be using the default sqlite database bu
 * "Order" with attributes for order number and customer_id
 * "OrderLine" with attributes for order_id, quantity, spatula_id, shipping_location_id
 
-So we'll create them with these commands taking advantage of the Rails generator ability to understand model.
+Create them with these commands taking advantage of the Rails generator ability to understand model.
 
 > bundle exec rails generate model Spatula color:string price:decimal
 
@@ -123,7 +126,7 @@ class OrderLine < ApplicationRecord
 end
 ```
 
-With the *belongs_to* relationships in place we can now do something like this while in the rails console:
+With the *belongs_to* relationships in place you can now do something like this while in the rails console:
 
 > o = Order.first
 
@@ -152,7 +155,7 @@ class OrderLine < ApplicationRecord
 end
 ```
 
-This code now describes the relationships better because a spatula does not "own" an order line. Nor does an order line really belong to a spatula. What we're really trying to say is that an order line refers to one particular spatula. If we didn't include the *has_one* we could still refer to the spatula_id that an order line has as an attribute, but since we've included it we can refer to them as objects like so:
+This code now describes the relationships better because a spatula does not "own" an order line. Nor does an order line really belong to a spatula. An order line refers to one particular spatula. If *has_one* wasn't included the spatula_id still exists for the order line as an attribute, but since its been included it can be referred to as an object like so:
  
  > o = Order.first
  
@@ -160,7 +163,7 @@ This code now describes the relationships better because a spatula does not "own
  
  > s = l.spatula
  
- I'm not adding *belongs_to* to the spatula class though because we don't have any business case for needing to look up an order line from it. 
+ I'm not adding *belongs_to* to the spatula class though because isn't a business case for needing to look up an order line from it. 
 
 If I spent any more time on this I'd be getting off track. My goal was to spend just long enough that you start to intuitively understand what is actually being built. You really need the ability to conceptualize the domain process if you are to model it in code no matter what you are building. 
 
@@ -186,9 +189,39 @@ So let's exit the rails console.
 
 > irb(main):002:0> exit
 
+[commit](https://github.com/rault/rails-backbone-example/commit/151ac4b65958a49de6d8dfd1d882395eaff63f1d)
 
+<-------------------------- QUICK DIVERSION -------------------------->
+
+We need to have ShippingLocations be a child of Customer. This doesn't really matter in this example application but in the real world you'd expect a shipping location to have a real address which makes it specific to a customer. Something like a single corporate entity owning multiple stores. So let's fix that. 
+
+Create a migration to add customer_id to the shipping_locations table. 
+
+> bundle exec rails generate migration add_customer_id_to_shipping_locations customer_id:"integer{8}"
+
+> bundle exec rake db:migrate
+
+Now let's check to make sure it was changed:
+
+> bundle exec rails console
+
+> irb(main):004:0> s = ShippingLocation.new
+
+>  => #<ShippingLocation id: nil, name: nil, zip_code: nil, created_at: nil, updated_at: nil, customer_id: nil>
+
+We can see the customer_id field being included in the attributes. One last thing though...
 
 ```
-
+class ShippingLocation < ApplicationRecord
+  belongs_to :customer
+end
 ```
+```
+class Customer < ApplicationRecord
+  has_many :shipping_locations
+  has_many :orders
+end
+```
+[commit]()
 
+<--------------------------- END DIVERSION --------------------------->
