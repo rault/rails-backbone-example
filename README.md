@@ -15,7 +15,7 @@ And if you're new to Rails, this guide will walk you through your first Rails ap
 
 #### Definitions / Explanations
 
-Here I will briefly cover the "layers" of both Rails and Backbone and show the directories where these layers typically exist within a rails project. The tilde (~) denotes the rails root directory, wherever that may exist on your own system.
+Here I will briefly cover the "layers" of both Rails and Backbone and show the directories where these layers typically exist within a rails project. The tilde (~) denotes the rails application root directory, wherever that may exist on your own system.
 
 #### Rails
 
@@ -25,7 +25,7 @@ Here I will briefly cover the "layers" of both Rails and Backbone and show the d
 
 * __Views__ (~/app/views) - use the data provided from their controller action and format it (via templates) for consumption by the client
 
-* __Routes__ (~/app/config/routes.rb) - defines the endpoints (URIs) for the server, maps the URLs the client uses to code running on the server
+* __Routes__ (~/app/config/routes.rb) - defines the endpoints (URIs) for the server, maps the URLs the client uses to controller actions on the server, these don't have to be the same
 
 #### Backbone.js
 
@@ -60,7 +60,7 @@ end
 Let's get started...
 ---
 
-Let's say you've taken a contract to build an online order entry system for a company called __Spatula Emporium__. They intend on hiring a designer later as part of their re-branding campaign (*spatula sales never recovered from the 2008 housing market crash*) so your job is to provide a web application with all the logic and plumbing in place without any need for graphics or style. They also eventually want mobile apps that work off the API that you build. That will be a separate initiative. For now you'll need to provide the framework.
+You've taken a contract to build an online order entry system for a company called __Spatula Emporium__. They intend on hiring a designer later as part of their re-branding campaign (*spatula sales still haven't recovered from the 2008 housing market crash*) so your job is to provide a web application with all the logic and plumbing in place without any need for graphics or style. They also eventually want mobile apps that work off the API that you build. That will be a separate initiative. For now you'll need to provide the framework.
 
 ###### Note: I won't be covering things like user or API authentication. This will only cover the basics of Rails and Backbone.js combined.
 
@@ -87,7 +87,7 @@ This example application is using the default sqlite database but you can switch
 * "Order" with attributes for order number and customer_id
 * "OrderLine" with attributes for order_id, quantity, spatula_id, shipping_location_id
 
-Create them with these commands taking advantage of the Rails generator ability to understand model.
+Create them with these commands taking advantage of the Rails generator.
 
 > bundle exec rails generate model Spatula color:string price:decimal
 
@@ -163,7 +163,7 @@ This code now describes the relationships better because a spatula does not "own
  
  > s = l.spatula
  
- I'm not adding *belongs_to* to the spatula class though because isn't a business case for needing to look up an order line from it. 
+ I'm not adding *belongs_to* to the spatula class though because there isn't a business case for needing to look up an order line from it. 
 
 If I spent any more time on this I'd be getting off track. My goal was to spend just long enough that you start to intuitively understand what is actually being built. You really need the ability to conceptualize the domain process if you are to model it in code no matter what you are building. 
 
@@ -179,7 +179,7 @@ With the models out of the way you'll need to create the database and run the mi
 
 > irb(main):001:0> o = Order.first
 
-And the result looks ok.
+And the result looks ok because no orders have been created yet.
 
 >   Order Load (0.2ms)  SELECT  "orders".* FROM "orders" ORDER BY "orders"."id" ASC LIMIT ?  [["LIMIT", 1]]
 
@@ -222,6 +222,63 @@ class Customer < ApplicationRecord
   has_many :orders
 end
 ```
-[commit]()
+[commit](https://github.com/rault/rails-backbone-example/commit/d55065603a8207e053583ad54385fab2ca5705e5)
 
 <--------------------------- END DIVERSION --------------------------->
+
+##### Controllers
+
+The controllers are going to provide the data for our API. The mappings could be 1:1 of models to controllers except for orders. It doesn't make sense for order lines to exist separate from an order except in the database where we don't want to repeat order numbers for each line. Conceptually they're really just one thing anyway, an "order". From our APIs perspective this will be the only way the order lines will be used. So it makes sense to have a single controller for both.
+
+Another requirement from Spatula Emporium is that data can't really be deleted. Maybe its a compliance thing. If a customer goes away their records will need updated to show a "deleted" state and the orders will be updated to show a "cancelled" state. To accommodate this, create migrations adding a deleted field to the tables and a cancelled field on the order and order lines.
+
+> rails 
+
+> bundle exec rails generate migration add_deleted_to_spatulas deleted:boolean
+
+> bundle exec rails generate migration add_deleted_to_customers deleted:boolean
+
+> bundle exec rails generate migration add_deleted_to_shipping_locations deleted:boolean
+
+> bundle exec rails generate migration add_cancelled_to_orders cancelled:boolean
+
+> bundle exec rails generate migration add_cancelled_to_order_lines cancelled:boolean
+
+Now check these too:
+
+> bundle exec rails console
+
+> Spatula.new
+
+> Order.new
+
+Here are the controller generator commands:
+
+> bundle exec rails generate controller Spatula index show new edit create update destroy
+
+> bundle exec rails generate controller Customer index show new edit create update destroy
+
+> bundle exec rails generate controller ShippingLocation index show new edit create update destroy
+
+> bundle exec rails generate controller Order index show new edit create update destroy
+
+The controller code will be the same as what's covered in the [Rails Getting Started](https://guides.rubyonrails.org/getting_started.html) walk through except the destroy action will update the deleted fields, or for orders and order lines the cancelled fields. 
+
+[commit]()
+
+##### Routes
+
+##### Views
+
+Backbone.js
+---
+
+##### Models
+
+##### Collections
+
+##### Views
+
+##### Templates
+
+##### Routers
