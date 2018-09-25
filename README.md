@@ -361,9 +361,81 @@ I won't get much further into Rails routing because this guide actually covers i
 
 [Rails routing from the Outside In](https://guides.rubyonrails.org/routing.html)
 
-[commit]()
+[commit](https://github.com/rault/rails-backbone-example/commit/c6abde8deee53cf1eef051c87e226ed39f70352f)
 
 ##### Views
+
+I will be very brief here because what you normally do with views in Rails isn't the same when you use Backbone. But I'll cover the index action for spatulas just to review.
+
+The index action for spatulas returns a list of all of them in the instance variable "@spatulas":
+
+```
+  def index
+    @spatulas = Spatula.all
+  end
+```
+
+To write the list out to HTML, change the ~/app/views/spatula/index.html.erb from this:
+
+```
+<h1>Spatula#index</h1>
+<p>Find me in app/views/spatula/index.html.erb</p>
+```
+
+...to this (notice the "=" indicating that a value needs to be evaluated rather than just ruby code like the ".each do"):
+
+```
+<h1>Spatula#index</h1>
+<br>
+  <% @spatulas.each do |spatula| %>
+    ID: <%= spatula.id %><br>
+    Color: <%= spatula.color %><br>
+    Price: <%= spatula.price %><br>
+  <br><br>
+  <% end %>
+</p>
+```
+Run the Rails server again and go back to the spatula URL:
+
+> bundle exec rails server -p 3000
+
+There is no data yet so the output should be:
+
+```
+Spatula#index
+```
+I'll save you from having to create you own data by providing some via a database seed file. 
+
+I do want to mention, on my Mac I found I had to edit the permissions for the sqlite database files before running the seed file was successful. I just set "everyone" with read and write permissions for ease of use. You are free to make your own determination for security reasons though. The instructions for Mac OS are here:
+
+[macOS Sierra: Set permissions for items on your Mac](https://support.apple.com/kb/ph25287?locale=en_US)
+
+After that's done you can run the seed file like so:
+
+> bundle exec rake db:seed
+
+Reloading the spatula index page should now show this:
+
+```
+Spatula#index
+
+ID: 1
+Color: Red
+Price: 8.0
+
+
+ID: 2
+Color: Blue
+Price: 6.0
+
+
+ID: 3
+Color: Purple
+Price: 4.0
+
+```
+
+[commit]()
 
 Backbone.js
 ---

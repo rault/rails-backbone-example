@@ -1,2 +1,9 @@
 <h1>Spatula#index</h1>
-<p>Find me in app/views/spatula/index.html.erb</p>
+<br>
+  <% @spatulas.each do |spatula| %>
+    ID: <%= spatula.id %><br>
+    Color: <%= spatula.color %><br>
+    Price: <%= spatula.price %><br>
+  <br><br>
+  <% end %>
+</p>
