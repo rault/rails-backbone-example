@@ -271,9 +271,97 @@ For a brief overview of controllers and their intended usage, see this table fro
 ![table of controller actions mapped to HTTP verbs](https://s3.amazonaws.com/codecademy-content/projects/3/seven-actions.svg)
 </span>
 
-This commit can be ignored but I'm including it for reference. The changes are edits to the readme for context and better explanations. [commit]()
+This commit can be ignored but I'm including it for reference. The changes are edits to the readme for context and better explanations. [commit](https://github.com/rault/rails-backbone-example/commit/a1e765333c99dc31a68bc3f21ee19777e41aa8e3)
 
 ##### Routes
+
+Rails uses what's in the routes.rb file to register pathways when requests come into the server. It defines what clients (like browsers or requests from within JavaScript) can see. Now that the controllers and actions are in place we could create our routes for spatulas with their intended HTTP verb liks o:
+
+```
+Rails.application.routes.draw do
+  get 'spatula/index'
+  get 'spatula/new'
+  get 'spatula/show'
+  get 'spatula/update'
+end
+```
+
+Using this, when you make a GET request to "http://yourserver.com/spatula/index" what would be returned from the "index" controller action is a list of spatulas.
+
+```
+class SpatulaController < ApplicationController
+
+  def index
+    @spatulas = Spatula.all
+  end
+  
+  ...(the rest of the spatula_controller.rb file)
+```
+
+Let's run the rails server and see what shows up initially.
+
+> bundle exec rails server -p 3000
+
+Doing this runs the server for port 3000, now you can open a browser and go to "http://localhost:3000/spatula/index" which will display a message about which view is being accessed:
+
+```
+Spatula#index
+
+Find me in app/views/spatula/index.html.erb
+```
+Press [ctrl]+c to quit the server.
+
+For this project we'll enable all possible routes which will cover the controller actions that have been setup so far and any others in the event we need them. It'll also clean up the routes file nicely by keeping it small. 
+
+```
+Rails.application.routes.draw do
+  resources :customer
+  resources :order
+  resources :shipping_location
+  resources :spatula
+end
+```
+Run the Rails server again and navigate again to "http://localhost:3000/spatula/index". This time you get an error:
+
+```
+
+ActiveRecord::RecordNotFound in SpatulaController#show
+Couldn't find Spatula with 'id'=index
+Extracted source (around line #8):
+
+  def show
+    @spatula = Spatula.find(params[:id])
+  end
+
+  def new
+
+Rails.root: /Users/robault/Documents/GitHub/rails-backbone-example.git
+Application Trace | Framework Trace | Full Trace
+
+app/controllers/spatula_controller.rb:8:in `show'
+
+Request
+
+Parameters:
+
+{"id"=>"index"}
+
+Toggle session dump
+Toggle env dump
+Response
+
+Headers:
+
+None
+```
+
+When Rails handles the routes (by us defining them using the keyword "resources") "index" is treated special in that it is the default request recognized by the server, so the URL actually needs to be "http://yourserver.com/spatula/" and you will receive the same non-error result as before. Anything after  "spatula/" will be interpreted as an ID number which calls the "show" action. The other actions assume they'll be receiving some information to work with as well. Updates require the id of the object and the attribute data so it knows what and how to change the corresponding record in the database. Likewise a delete would need to know the id of which object its deleting.
+
+I won't get much further into Rails routing because this guide actually covers it well enough for beginners. 
+
+[Rails routing from the Outside In](https://guides.rubyonrails.org/routing.html)
+
+[commit]()
 
 ##### Views
 
