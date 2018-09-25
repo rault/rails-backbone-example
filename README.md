@@ -539,12 +539,112 @@ Again, just editing for clarity and formatting: [commit](https://github.com/raul
 
 ##### Models
 
+Now we're going to make our models. They all extend the base Model class provided by Backbone.js. Let's start with Spatula:
 
+```javascript
+App.Models.Spatula = Backbone.Model.extend({
+    urlRoot: '/spatula',
+    defaults: {
+        "color": "",
+        "price": ""
+    },
+});
+```
+
+Spatula is defined in the App.Models namespace that was setup in the application.js file. Extending from Backbone.Model sets up functions and events provided by Backbone.js. You can think of this backbone model as a proxy class for the Spatula class on the server. Out object is defined by the server but we "model" it on the client side using this Spatula model.
+
+The urlRoot tells backbone where to look for the Rails route that provides the data for this model. This corresponds to the route for the object in the routes.rb file.
+
+Setting defaults is unnecessary but I wanted to do it to illustrate what we expect to see when we tell backbone to get a spatula from the server. 
+
+To test this out, make sure the Rails server is running and load or re-load the page. In the console type:
+
+> var s = new App.Models.Spatula();
+
+What you should see in response is:
+
+> undefined
+
+The line was a statement, not referencing an object or value so this is ok. Now type just "s" like so:
+
+> s
+
+What you will see is the object "s" (our Spatula object in JavaScript) output to the console:
+
+> Object { cid: "c2", attributes: {…}, _changing: false, _previousAttributes: {}, changed: {}, _pending: false }
+
+If you expand the object then expand attributes you will see both color and price being shown because the defaults were defined in the model:
+
+```javascript
+{…}
+  _changing: false
+  _pending: false
+  _previousAttributes: Object {  }
+  attributes: {…}
+    color: ""
+    price: ""
+    <prototype>: Object { … }
+  changed: Object {  }
+  cid: "c2"
+  <prototype>: Object { constructor: child(), urlRoot: "/spatulas", defaults: {…} }
+```
+
+Next we'll request a spatula from the server. Look at the HTML page and choose one of the IDs and add it to this call to fetch, my ID is 13:
+
+> s.fetch(13)
+
+Initially the response looks similar to the object response above. If you expand it you'll see a property called "responseText" In it is the HTML for the spatula page from the index action on the server.
+
+```javascript
+"<!DOCTYPE html>\n<html>\n <head>\n <title>SpatulaEmporium</title>\n <meta name=\"csrf-param\" content=\"authenticity_token\" />\n<meta name=\"csrf-token\" content=\"R2TZCIcxuAVO6SM3kEWXJptmiVTty7ttD8PHmsR5vpuIxWBWczWfHTwI5kfDDaZVtbquMjqLg4qMhUly/a8ifQ==\" />\n \n\n <link rel=\"stylesheet\" media=\"all\" href=\"/assets/customer.self-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css?body=1\" data-turbolinks-track=\"reload\" />\n<link rel=\"stylesheet\" media=\"all\" href=\"/assets/order.self-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css?body=1\" data-turbolinks-track=\"reload\" />\n<link rel=\"stylesheet\" media=\"all\" href=\"/assets/shipping_location.self-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css?body=1\" data-turbolinks-track=\"reload\" />\n<link rel=\"stylesheet\" media=\"all\" href=\"/assets/spatula.self-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css?body=1\" data-turbolinks-track=\"reload\" />\n<link rel=\"stylesheet\" media=\"all\" href=\"/assets/application.self-f0d704deea029cf000697e2c0181ec173a1b474645466ed843eb5ee7bb215794.css?body=1\" data-turbolinks-track=\"reload\" />\n <script src=\"/assets/rails-ujs.self-3b600681e552d8090230990c0a2e8537aff48159bea540d275a620d272ba33a0.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/activestorage.self-0525629bb5bac7ed5f2bfc58a9679d75705e426dafd6957ae9879db97c8e9cbe.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/turbolinks.self-2db6ec539b9190f75e1d477b305df53d12904d5cafdd47c7ffd91ba25cbec128.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/json2.self-356614d2260c69b92680d59e99601dcd5e068f761756f22fb959b5562b9a7d62.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/jquery-3.1.1.self-355640bfbbb3239b9bb16d6795e41d526eeffc2eff3253d494fa3f58e2c3177c.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/underscore-1.8.3.min.self-4f5b2528815d8b1cd9b68b1a4bb1fe689696f8dcbc2c4a5104343b886ee68828.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/backbone-1.0.0.self-2ebbacdc8393dac4ce1d4cfbb8eb1957ba7bd7811fa7bed67c94a4a1193a78f3.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/application.self-4ac2742a3c953773bf9a9801a809e613cad45ab72577d949689d1df94aadc5c2.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/models/customer.self-ff49112cc7532541b05a81ee8879a94cabe4bb5680e3ab316f8f1398900fb4ae.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/models/order.self-785985f7ee6d4b86662fa8d2dd992c92d87ed09996f148b2f7a11e54865c7022.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/models/shipping_location.self-a36a60ee4d15d5c81682beae09923613eafbeb650c32a5da8a1dfcf461187732.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/models/spatula.self-b78d01298ef5837528b16750b5397e650321f31ee059c7de93e81aa00170aabb.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/action_cable.self-69fddfcddf4fdef9828648f9330d6ce108b93b82b0b8d3affffc59a114853451.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/cable.self-8484513823f404ed0c0f039f75243bfdede7af7919dda65f2e66391252443ce9.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/customer.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/order.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/shipping_location.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1\" data-turbolinks-track=\"reload\"></script>\n<script src=\"/assets/spatula.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1\" data-turbolinks-track=\"reload\"></script>\n </head>\n\n <body>\n <h1>Spatula#index</h1>\n<br>\n ID: 13<br>\n Color: Red<br>\n Price: 8.0<br>\n <br><br>\n ID: 14<br>\n Color: Blue<br>\n Price: 6.0<br>\n <br><br>\n ID: 15<br>\n Color: Purple<br>\n Price: 4.0<br>\n <br><br>\n</p>\n </body>\n</html>\n"
+```
+
+Buried in the responseText is the HTML generated from the view in Rails:
+
+```html
+<br>\n ID: 13<br>\n Color: Red<br>\n Price: 8.0<br>\n <br><br>\n ID: 14<br>\n Color: Blue<br>\n Price: 6.0<br>\n <br><br>\n ID: 15<br>\n Color: Purple<br>\n Price: 4.0<br>\n <br><br>>
+```
+
+This makes sense actually. We set Rails up to respond to a request at "/spatula" with the index action and we've just told our model to go there when asking for a spatula with a specific ID.
+
+What we want is for the server to respond with JSON that fills our model's attributes. Passing an ID to backbone's "fetch" should correspond to the "show" action on the server which should give us back the spatula we're talking about.
+
+The reason it isn't doing this is because we haven't setup routes yet. So let's do that next.
+
+For reference, the other models are defined within their own files like so:
+
+```javascript
+App.Models.Customer = Backbone.Model.extend({
+    urlRoot: '/customer',
+    defaults: {
+        "name": "",
+        "zip_code": ""
+    },
+});
+
+App.Models.Order = Backbone.Model.extend({
+    urlRoot: '/order',
+    defaults: {
+        "order_number": "",
+        "customer_id": ""
+    },
+});
+
+App.Models.ShippingLocation = Backbone.Model.extend({
+    urlRoot: '/shipping_location',
+    defaults: {
+        "name": "",
+        "zip_code": ""
+    },
+});
+```
+
+[commit]()
+
+##### Routers
 
 ##### Collections
 
 ##### Views
 
 ##### Templates
-
-##### Routers
