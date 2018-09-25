@@ -639,6 +639,58 @@ App.Models.ShippingLocation = Backbone.Model.extend({
 });
 ```
 
+A note about working with models before we move on. A model in Backbone.js is a container, like a collection is a container not an actual list or array. Going back to the attributes for a Spatula:
+
+```javascript
+{…}
+  _changing: false
+  _pending: false
+  _previousAttributes: Object {  }
+  attributes: {…}
+    color: ""
+    price: ""
+    <prototype>: Object { … }
+  changed: Object {  }
+  cid: "c2"
+  <prototype>: Object { constructor: child(), urlRoot: "/spatulas", defaults: {…} }
+```
+
+Notice there is no "color" property? It's a spatula which we know has a color but the backbone model doesn't provide that property to us directly. It's contained in the attributes hash. 
+
+Backbone does provide helper methods for accessing these values called "get" and "set". Let's start with a new spatula in the browser console:
+
+> var s = new App.Models.Spatula();
+
+The default color is an empty string for a new spatula. Calling it this way returns "undefineind":
+
+> s.color
+
+Using the backbone "get" works though:
+
+> s.get("color");
+
+> ""
+
+Let's add a value using the "set" function:
+
+> s.set("color", "Green");
+
+> Object { cid: "c1", attributes: {…}, _changing: false, _previousAttributes: {…}, changed: {…}, _pending: false }
+
+Now when we call "get" we'll see the value we just set:
+
+> s.get("color");
+
+> "Green"
+
+Rails can symbolize hashes so you might think you can do something like this, but it will result in an error:
+
+> s.get(:color)
+
+> SyntaxError: expected expression, got ':'[Learn More]
+
+Just keep in mind a backbone model is a container, not necessarily a direct representation of the object it corresponds with on the server.
+
 [commit]()
 
 ##### Routers
