@@ -13,35 +13,37 @@ And if you're new to Rails, this guide will walk you through your first Rails ap
 
 [https://guides.rubyonrails.org/getting_started.html](https://guides.rubyonrails.org/getting_started.html)
 
+I make the assumption you've already gone through that tutorial in this guide. If you're already somewhat familiar with Rails you probably don't need it..
+
 #### Definitions / Explanations
 
 Here I will briefly cover the "layers" of both Rails and Backbone and show the directories where these layers typically exist within a rails project. The tilde (~) denotes the rails application root directory, wherever that may exist on your own system.
 
 #### Rails
 
-* __Models__ (~/app/models) - generally represent the tables in a database, but don't necessarily have to
+* __Models__ (~/app/models) - generally represent the tables in a database, but don't necessarily have toa, in theory, a structural representation of data in code
 
 * __Controllers__ (~/app/controllers) - provide endpoints for clients (browsers) and respond to requests via *actions* (their methods)
 
-* __Views__ (~/app/views) - use the data provided from their controller action and format it (via templates) for consumption by the client
+* __Views__ (~/app/views) - use the data provided from their controller action (not necessarily a model) and format it (via templates) for consumption by the client
 
 * __Routes__ (~/app/config/routes.rb) - defines the endpoints (URIs) for the server, maps the URLs the client uses to controller actions on the server, these don't have to be the same
 
 #### Backbone.js
 
-* __Models__ (~/app/assets/javascripts/models) - a container for data from the server, moves data to and from the server
+* __Models__ (~/app/assets/javascripts/models) - a container for data from the server, moves data to and from the server, roughly analogous to a Rails model which similarly ought to contain any functions that interact with the data represented by the model
 
-* __Collections__ (~/app/assets/javascripts/collections) - an object that contains an array of Backbone.js models and does extra stuff like wiring up events to listen to changes in the models, don't think of the collection itself as an array or traditional *list* like exists in any other language, a Backbone.js collection is kind of its own thing
+* __Collections__ (~/app/assets/javascripts/collections) - an object *that contains an array* of Backbone.js models and does extra stuff like wiring up events to listen to changes in the models, don't think of the collection itself as an array or traditional list like other languages, a Backbone.js collection is kind of its own thing, in that light the name is...unfortunate
 
-* __Views__ (~/app/assets/javascripts/views) - a JavaScript object that uses the model (data) to interact with the template, can react to changes in the model or the DOM
+* __Views__ (~/app/assets/javascripts/views) - a JavaScript object that uses the model (data) to interact with the template, a view can react to changes in the model or the DOM, its meant to contain JavaScript events and functions that deal with the layout and presentation of you model data in the template
 
-* __Templates__ (~/app/assets/javascripts/templates) - a container for HTML that represents the model data via the view
+* __Templates__ (~/app/assets/javascripts/templates) - a container for HTML that represents the model data via the view, the inline code in a view ought to be familiar to anyone that's worked with just HTML and JavaScript 
 
-* __Routers__ (~/app/assets/javascripts/routers) - intercepts URL requests in the browser and maps them to a Backbone.js model & view, a URL on the client does not need to correspond to a URL on the server
+* __Routers__ (~/app/assets/javascripts/routers) - intercepts URL requests in the browser and maps them to a Backbone.js model & view, a URL on the client does not need to correspond to a URL on the server, this too is roughly analogous to the rails routes
 
 #### Syntax
 
-This probably doesn't need to be said but I wanted to be explicit. Samples that need to be run from the command line:
+This probably doesn't need to be said but I wanted to be explicit. Code samples in this guide that need to be run from the command line:
 
 > will look like this
 
@@ -60,7 +62,7 @@ end
 Let's get started...
 ---
 
-You've taken a contract to build an online order entry system for a company called __Spatula Emporium__. They intend on hiring a designer later as part of their re-branding campaign (*spatula sales still haven't recovered from the 2008 housing market crash*) so your job is to provide a web application with all the logic and plumbing in place without any need for graphics or style. They also eventually want mobile apps that work off the API that you build. That will be a separate initiative. For now you'll need to provide the framework.
+We'll pretend you've taken a contract to build an online order entry system for a company called __Spatula Emporium__. They intend on hiring a designer later as part of their re-branding campaign (*spatula sales still haven't recovered from the 2008 housing market crash*) so your job is to provide a web application with all the logic and plumbing in place without any need for graphics or style. They also eventually want mobile apps that work off the API that you build. That will be a separate initiative. For now you'll need to provide the web application framework.
 
 ###### Note: I won't be covering things like user or API authentication. This will only cover the basics of Rails and Backbone.js combined.
 
@@ -79,7 +81,7 @@ First create a new rails application:
 
 ##### Models
 
-This example application is using the default sqlite database but you can switch to something else if you want to. The models are:
+This example application is using the default sqlite database but you can switch to something else if you want to. Using the rails generator will create the database migrations making it easy to get up and running quickly. The models needed for this new order entry system are :
 
 * "Spatula" with attributes for color and price
 * "Customer" with attributes for name and zip code
@@ -155,7 +157,7 @@ class OrderLine < ApplicationRecord
 end
 ```
 
-This code now describes the relationships better because a spatula does not "own" an order line. Nor does an order line really belong to a spatula. An order line refers to one particular spatula. If *has_one* wasn't included the spatula_id still exists for the order line as an attribute, but since its been included it can be referred to as an object like so:
+This code now describes the relationships better because a spatula does not "own" an order line. Nor does an order line really belong to a spatula. An order line refers to one particular spatula. If *has_one* wasn't included the spatula_id still exists for the order line as an attribute, since *has_one* is included it can be referred to as an object like so:
  
  > o = Order.first
  
@@ -167,7 +169,7 @@ This code now describes the relationships better because a spatula does not "own
 
 If I spent any more time on this I'd be getting off track. My goal was to spend just long enough that you start to intuitively understand what is actually being built. You really need the ability to conceptualize the domain process if you are to model it in code no matter what you are building. 
 
-With the models out of the way you'll need to create the database and run the migrations.
+With the models out of the way you'll need to create the database and run the migrationsa, which we didn't need to create because we used a rails genrerator.
 
 > bundle exec rake db:create
 
@@ -191,7 +193,7 @@ So let's exit the rails console.
 
 [commit](https://github.com/rault/rails-backbone-example/commit/151ac4b65958a49de6d8dfd1d882395eaff63f1d)
 
-<-------------------------- QUICK DIVERSION -------------------------->
+##### Changing the Models
 
 We need to have ShippingLocations be a child of Customer. This doesn't really matter in this example application but in the real world you'd expect a shipping location to have a real address which makes it specific to a customer. Something like a single corporate entity owning multiple stores. So let's fix that. 
 
@@ -209,7 +211,7 @@ Now let's check to make sure it was changed:
 
 >  => #<ShippingLocation id: nil, name: nil, zip_code: nil, created_at: nil, updated_at: nil, customer_id: nil>
 
-We can see the customer_id field being included in the attributes. One last thing though...
+We can see the customer_id field being included in the attributes. One last thing though...change the *belongs_to* in the Customer class to *has_many* like so:
 
 ```
 class ShippingLocation < ApplicationRecord
@@ -224,13 +226,11 @@ end
 ```
 [commit](https://github.com/rault/rails-backbone-example/commit/d55065603a8207e053583ad54385fab2ca5705e5)
 
-<--------------------------- END DIVERSION --------------------------->
-
 ##### Controllers
 
-The controllers are going to provide the data for our API. The mappings could be 1:1 of models to controllers except for orders. It doesn't make sense for order lines to exist separate from an order except in the database where we don't want to repeat order numbers for each line. Conceptually they're really just one thing anyway, an "order". From our APIs perspective this will be the only way the order lines will be used. So it makes sense to have a single controller for both.
+The controllers are going to provide the data for our API. The mappings could be 1:1 of models to controllers except for orders. It doesn't make sense for order lines to exist separate from an order except in the database where we don't want to repeat order information for each line. In database speak this is called "normalization". Conceptually they're really just one thing anyway, an "order". From our APIs perspective this will be the only way the orders and their lines will be used. So it makes sense to have a single controller that combines the two models.
 
-Another requirement from Spatula Emporium is that data can't really be deleted. Maybe its a compliance thing. If a customer goes away their records will need updated to show a "deleted" state and the orders will be updated to show a "cancelled" state. To accommodate this, create migrations adding a deleted field to the tables and a cancelled field on the order and order lines.
+Another requirement from Spatula Emporium is that data can't really be deleted. Maybe its an auditing compliance thing. If a customer goes away their records will need updated to show a "deleted" state and the orders will be updated to show a "cancelled" state. To accommodate this, create migrations adding a deleted field to the tables and a cancelled field on the order and order lines.
 
 > rails 
 
@@ -244,7 +244,7 @@ Another requirement from Spatula Emporium is that data can't really be deleted. 
 
 > bundle exec rails generate migration add_cancelled_to_order_lines cancelled:boolean
 
-Now check these too:
+Run db:migrate again then spot-check these in the Rails console too, you should see the deleted field being included in the output:
 
 > bundle exec rails console
 
@@ -252,7 +252,7 @@ Now check these too:
 
 > Order.new
 
-Here are the controller generator commands:
+Now we can create the controllers and we'll also use the Rails generator for these:
 
 > bundle exec rails generate controller Spatula index show new edit create update destroy
 
@@ -262,9 +262,16 @@ Here are the controller generator commands:
 
 > bundle exec rails generate controller Order index show new edit create update destroy
 
-The controller code will be the same as what's covered in the [Rails Getting Started](https://guides.rubyonrails.org/getting_started.html) walk through except the destroy action will update the deleted fields, or for orders and order lines the cancelled fields. 
+The controller code will be very similar as what's covered in the [Rails Getting Started](https://guides.rubyonrails.org/getting_started.html) walk through except the destroy action will update the deleted or cancelled fields (for orders and order lines). 
 
-[commit]()
+[commit](https://github.com/rault/rails-backbone-example/commit/06f78c73a092e2bbaeaa9089687b0f7d604bd0fe)
+
+For a brief overview of controllers and their intended usage, see this table from the Code Academy article: [Standard Controller Actions](https://www.codecademy.com/articles/standard-controller-actions)
+<span style="background-color:white">
+![table of controller actions mapped to HTTP verbs](https://s3.amazonaws.com/codecademy-content/projects/3/seven-actions.svg)
+</span>
+
+This commit can be ignored but I'm including it for reference. The changes are edits to the readme for context and better explanations. [commit]()
 
 ##### Routes
 
