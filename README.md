@@ -435,10 +435,74 @@ Price: 4.0
 
 ```
 
-[commit]()
+[commit](https://github.com/rault/rails-backbone-example/commit/5a6963c5ae6900b19c4dd8f3ee1027e7d856c192)
 
 Backbone.js
 ---
+
+Now for the *pièce de résistance*, Backbone.js. There are a couple different ways of adding backbone to your Rails application but for this tutorial we're going to add them manually because this introduces you to the Rails asset pipeline.
+
+##### Setup
+
+The download description for Backbone.js (at the time this tutorial was created) reads:
+
+```
+Backbone's only hard dependency is Underscore.js ( >= 1.8.3). For RESTful persistence and DOM manipulation with Backbone.View, include jQuery ( >= 1.11.0), and json2.js for older Internet Explorer support. (Mimics of the Underscore and jQuery APIs, such as Lodash and Zepto, will also tend to work, with varying degrees of compatibility.)
+``` 
+
+We'll go ahead and add all of these, You can download them yourself or copy them from within this repository. I had a problem using the latest production backbone while making this tutorial, so I'm going to re-use a version I know to work (1.0.0). Place them all in "~/vendor/assets/javascripts", you'll need to create the full folder path.
+
+Now add the require directives to the "~/app/assets/javascripts/application.js" file and stub the application structure, it should look like so:
+
+```
+// Rails default libraries
+//= require rails-ujs
+//= require activestorage
+//= require turbolinks
+
+// Libraries we've added
+//= require json2
+//= require jquery-3.1.1
+//= require underscore-1.8.3.min
+//= require backbone-1.0.0.js
+
+
+// Paths for backbone.js files
+//= require_self
+//= require_tree ./models
+//= require_tree ./collections
+//= require_tree ./routers
+//= require_tree ./views
+//= require_tree .
+
+// Setting up backbone
+window.App = {
+    Models: {},
+    Collections: {},
+    Views: {}
+};
+```
+
+Run the rails server, go back to the spatula page and open the developer tools for the browser you are using. In the console type in:
+
+> Backbone
+
+You should see something like this indicating Backbone.js is being included in the page and is loading correctly.
+
+```
+  Object { VERSION: "1.0.0", "$": jQuery()
+  , noConflict: noConflict(), emulateHTTP: false, emulateJSON: false, Events: {…}, on: on(), once: once(), off: off(), trigger: trigger(), … }
+```
+
+Likewise, you can now try these and they'll be recognized as name spaces in your JavaScript application structure:
+
+> App.Models
+
+> App.Collections
+
+> App.Views
+
+[commit]()
 
 ##### Models
 
