@@ -49,7 +49,7 @@ This probably doesn't need to be said but I wanted to be explicit. Code samples 
 
 ...and actual code (within in files) will look like this:
 
-```
+```ruby
 class Something
     
     def initialize
@@ -103,24 +103,24 @@ Create them with these commands taking advantage of the Rails generator.
 
 And you'll get models looking like these:
 
-```
+```ruby
 class Spatula < ApplicationRecord
 end
 ```
-```
+```ruby
 class Customer < ApplicationRecord
 end
 ```
-```
+```ruby
 class ShippingLocation < ApplicationRecord
 end
 ```
-```
+```ruby
 class Order < ApplicationRecord
   belongs_to :customer
 end
 ```
-```
+```ruby
 class OrderLine < ApplicationRecord
   belongs_to :order
   belongs_to :spatula
@@ -138,18 +138,18 @@ That allows us to refer to the customer for that specific order without having t
 
 Here I'm adding or changing a couple *belong_to* to *has_many* or *has_one* to the classes where that makes sense. 
 
-```
+```ruby
 class Customer < ApplicationRecord
   has_many :orders
 end
 ```
-```
+```ruby
 class Order < ApplicationRecord
   belongs_to :customer
   has_many :order_lines
 end
 ```
-```
+```ruby
 class OrderLine < ApplicationRecord
   belongs_to :order
   has_one :spatula
@@ -213,12 +213,12 @@ Now let's check to make sure it was changed:
 
 We can see the customer_id field being included in the attributes. One last thing though...change the *belongs_to* in the Customer class to *has_many* like so:
 
-```
+```ruby
 class ShippingLocation < ApplicationRecord
   belongs_to :customer
 end
 ```
-```
+```ruby
 class Customer < ApplicationRecord
   has_many :shipping_locations
   has_many :orders
@@ -277,7 +277,7 @@ This commit can be ignored but I'm including it for reference. The changes are e
 
 Rails uses what's in the routes.rb file to register pathways when requests come into the server. It defines what clients (like browsers or requests from within JavaScript) can see. Now that the controllers and actions are in place we could create our routes for spatulas with their intended HTTP verb liks o:
 
-```
+```ruby
 Rails.application.routes.draw do
   get 'spatula/index'
   get 'spatula/new'
@@ -288,7 +288,7 @@ end
 
 Using this, when you make a GET request to "http://yourserver.com/spatula/index" what would be returned from the "index" controller action is a list of spatulas.
 
-```
+```ruby
 class SpatulaController < ApplicationController
 
   def index
@@ -304,7 +304,7 @@ Let's run the rails server and see what shows up initially.
 
 Doing this runs the server for port 3000, now you can open a browser and go to "http://localhost:3000/spatula/index" which will display a message about which view is being accessed:
 
-```
+```text
 Spatula#index
 
 Find me in app/views/spatula/index.html.erb
@@ -313,7 +313,7 @@ Press [ctrl]+c to quit the server.
 
 For this project we'll enable all possible routes which will cover the controller actions that have been setup so far and any others in the event we need them. It'll also clean up the routes file nicely by keeping it small. 
 
-```
+```ruby
 Rails.application.routes.draw do
   resources :customer
   resources :order
@@ -323,8 +323,7 @@ end
 ```
 Run the Rails server again and navigate again to "http://localhost:3000/spatula/index". This time you get an error:
 
-```
-
+```text
 ActiveRecord::RecordNotFound in SpatulaController#show
 Couldn't find Spatula with 'id'=index
 Extracted source (around line #8):
@@ -369,7 +368,7 @@ I will be very brief here because what you normally do with views in Rails isn't
 
 The index action for spatulas returns a list of all of them in the instance variable "@spatulas":
 
-```
+```ruby
   def index
     @spatulas = Spatula.all
   end
@@ -377,14 +376,14 @@ The index action for spatulas returns a list of all of them in the instance vari
 
 To write the list out to HTML, change the ~/app/views/spatula/index.html.erb from this:
 
-```
+```text
 <h1>Spatula#index</h1>
 <p>Find me in app/views/spatula/index.html.erb</p>
 ```
 
 ...to this (notice the "=" indicating that a value needs to be evaluated rather than just ruby code like the ".each do"):
 
-```
+```html
 <h1>Spatula#index</h1>
 <br>
   <% @spatulas.each do |spatula| %>
@@ -401,7 +400,7 @@ Run the Rails server again and go back to the spatula URL:
 
 There is no data yet so the output should be:
 
-```
+```text
 Spatula#index
 ```
 I'll save you from having to create you own data by providing some via a database seed file. 
@@ -416,7 +415,7 @@ After that's done you can run the seed file like so:
 
 Reloading the spatula index page should now show this:
 
-```
+```text
 Spatula#index
 
 ID: 1
@@ -446,7 +445,7 @@ Now for the *pièce de résistance*, Backbone.js. There are a couple different w
 
 The download description for Backbone.js (at the time this tutorial was created) reads:
 
-```
+```text
 Backbone's only hard dependency is Underscore.js ( >= 1.8.3). For RESTful persistence and DOM manipulation with Backbone.View, include jQuery ( >= 1.11.0), and json2.js for older Internet Explorer support. (Mimics of the Underscore and jQuery APIs, such as Lodash and Zepto, will also tend to work, with varying degrees of compatibility.)
 ``` 
 
@@ -454,7 +453,7 @@ We'll go ahead and add all of these, You can download them yourself or copy them
 
 Now add the require directives to the "~/app/assets/javascripts/application.js" file and stub the application structure, it should look like so:
 
-```
+```javascript
 // Rails default libraries
 //= require rails-ujs
 //= require activestorage
@@ -482,6 +481,7 @@ window.App = {
     Views: {}
 };
 ```
+What you place in the vendor/assets folder becomes available to your application for use and keeps third party assets and libvraries separate from the code you create in your application. They won't be loaded unless your application is told about them which is why the application.js must require them. 
 
 Run the rails server, go back to the spatula page and open the developer tools for the browser you are using. In the console type in:
 
@@ -502,9 +502,44 @@ Likewise, you can now try these and they'll be recognized as name spaces in your
 
 > App.Views
 
-[commit]()
+To put a point on it, go ahead and right click the page in the browser and view its source. The <head> block of HTML should look something like this:
+
+```html
+  <head>
+    <title>SpatulaEmporium</title>
+    <meta name="csrf-param" content="authenticity_token" />
+    <meta name="csrf-token" content="LbO0LzVqh7uUStRXDj7lirW0QN+YX1FNwAj+q73hr2fiEg1xwW6go+arESdddtT5m2hnuU8faapDTnBDhDczgQ==" />
+    <link rel="stylesheet" media="all" href="/assets/customer.self-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css?body=1" data-turbolinks-track="reload" />
+    <link rel="stylesheet" media="all" href="/assets/order.self-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css?body=1" data-turbolinks-track="reload" />
+    <link rel="stylesheet" media="all" href="/assets/shipping_location.self-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css?body=1" data-turbolinks-track="reload" />
+    <link rel="stylesheet" media="all" href="/assets/spatula.self-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css?body=1" data-turbolinks-track="reload" />
+    <link rel="stylesheet" media="all" href="/assets/application.self-f0d704deea029cf000697e2c0181ec173a1b474645466ed843eb5ee7bb215794.css?body=1" data-turbolinks-track="reload" />
+    <script src="/assets/rails-ujs.self-3b600681e552d8090230990c0a2e8537aff48159bea540d275a620d272ba33a0.js?body=1" data-turbolinks-track="reload"></script>
+    <script src="/assets/activestorage.self-0525629bb5bac7ed5f2bfc58a9679d75705e426dafd6957ae9879db97c8e9cbe.js?body=1" data-turbolinks-track="reload"></script>
+    <script src="/assets/turbolinks.self-2db6ec539b9190f75e1d477b305df53d12904d5cafdd47c7ffd91ba25cbec128.js?body=1" data-turbolinks-track="reload"></script>
+    <script src="/assets/json2.self-356614d2260c69b92680d59e99601dcd5e068f761756f22fb959b5562b9a7d62.js?body=1" data-turbolinks-track="reload"></script>
+    <script src="/assets/jquery-3.1.1.self-355640bfbbb3239b9bb16d6795e41d526eeffc2eff3253d494fa3f58e2c3177c.js?body=1" data-turbolinks-track="reload"></script>
+    <script src="/assets/underscore-1.8.3.min.self-4f5b2528815d8b1cd9b68b1a4bb1fe689696f8dcbc2c4a5104343b886ee68828.js?body=1" data-turbolinks-track="reload"></script>
+    <script src="/assets/backbone-1.0.0.self-2ebbacdc8393dac4ce1d4cfbb8eb1957ba7bd7811fa7bed67c94a4a1193a78f3.js?body=1" data-turbolinks-track="reload"></script>
+    <script src="/assets/application.self-4ac2742a3c953773bf9a9801a809e613cad45ab72577d949689d1df94aadc5c2.js?body=1" data-turbolinks-track="reload"></script>
+    <script src="/assets/action_cable.self-69fddfcddf4fdef9828648f9330d6ce108b93b82b0b8d3affffc59a114853451.js?body=1" data-turbolinks-track="reload"></script>
+    <script src="/assets/cable.self-8484513823f404ed0c0f039f75243bfdede7af7919dda65f2e66391252443ce9.js?body=1" data-turbolinks-track="reload"></script>
+    <script src="/assets/customer.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" data-turbolinks-track="reload"></script>
+    <script src="/assets/order.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" data-turbolinks-track="reload"></script>
+    <script src="/assets/shipping_location.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" data-turbolinks-track="reload"></script>
+    <script src="/assets/spatula.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" data-turbolinks-track="reload"></script>
+  </head>
+```
+
+You can see the backbone, underscore, json2 and jquery javascript files being loaded in the page via script tags; something you would do if you were writing a HTML and JavaScript only application without the automated features and server side application in Rails.
+
+[commit](https://github.com/rault/rails-backbone-example/commit/d17c54f58446f549403f6ce86aa0d7608b90458b)
+
+Again, just editing for clarity and formatting: [commit](https://github.com/rault/rails-backbone-example/commit/a1e765333c99dc31a68bc3f21ee19777e41aa8e3)
 
 ##### Models
+
+
 
 ##### Collections
 
